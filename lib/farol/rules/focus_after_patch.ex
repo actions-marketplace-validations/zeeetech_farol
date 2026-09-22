@@ -67,7 +67,8 @@ defmodule Farol.Rules.FocusAfterPatch do
       message:
         "#{Node.snippet(node)} patches a subtree containing focusable " <>
           "elements, with no phx-hook or autofocus to restore focus",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

@@ -70,7 +70,13 @@ defmodule Farol.Rules.PhxClickInteractive do
   end
 
   defp role_missing(node) do
-    if Node.attr(node, "role") in @interactive_roles, do: nil, else: "an interactive role"
+    # A dynamic role is given the benefit of the doubt: it may resolve to a
+    # perfectly interactive role at runtime.
+    cond do
+      Node.dynamic?(node, "role") -> nil
+      Node.attr(node, "role") in @interactive_roles -> nil
+      true -> "an interactive role"
+    end
   end
 
   defp tabindex_missing(node) do
@@ -94,7 +100,8 @@ defmodule Farol.Rules.PhxClickInteractive do
       message:
         "#{Node.snippet(node)} handles phx-click but is not keyboard " <>
           "accessible (missing: #{Enum.join(missing, ", ")})",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

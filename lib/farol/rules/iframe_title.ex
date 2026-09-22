@@ -49,7 +49,8 @@ defmodule Farol.Rules.IframeTitle do
       level: level(),
       severity: severity(),
       message: "#{Node.snippet(node)} has no title",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

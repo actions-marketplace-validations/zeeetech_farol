@@ -44,26 +44,47 @@ defmodule Farol do
   def rules, do: @rules
 
   @doc """
-  Runs rules against rendered HTML and returns a list of `Farol.Finding`.
+  Runs rules against a source document and returns a list of `Farol.Finding`.
 
   An empty list means the markup passed. Findings come back in document
   order per rule, grouped by rule, errors and warnings interleaved; the
   report layer handles presentation.
 
+  Raises `ArgumentError` when the source cannot be parsed. Callers handling
+  untrusted or broken templates (like `mix farol`) should call the adapter
+  directly and feed the nodes to `run/2` instead.
+
   ## Options
 
     * `:adapter` - module implementing `Farol.Adapter`, defaults to
-      `Farol.Adapter.HTML`. This is how the HEEx static engine will plug in.
+      `Farol.Adapter.HTML`. Use `Farol.Adapter.HEEx` for template source.
     * `:except` - rule ids to skip, as strings or atoms. Explicit and
       greppable on purpose, so exceptions survive code review.
     * `:only` - run just these rule ids. Useful for testing a custom rule
       or focusing a test on one concern.
   """
   @spec check(binary, keyword) :: [Finding.t()]
-  def check(html, opts \\ []) when is_binary(html) do
+  def check(source, opts \\ []) when is_binary(source) do
     adapter = Keyword.get(opts, :adapter, Adapter.HTML)
-    nodes = adapter.parse(html)
 
+    case adapter.parse(source, opts) do
+      {:ok, nodes} ->
+        run(nodes, opts)
+
+      {:error, reason} ->
+        raise ArgumentError, "farol could not parse the source: #{inspect(reason)}"
+    end
+  end
+
+  @doc """
+  Runs the selected rules against an already-parsed node forest.
+
+  This is the second half of `check/2`, exposed so callers that parse on
+  their own (the static engine in `mix farol`) can handle parse errors
+  gracefully and still get the same rule selection semantics.
+  """
+  @spec run([Farol.Node.t()], keyword) :: [Finding.t()]
+  def run(nodes, opts \\ []) when is_list(nodes) do
     opts
     |> select_rules()
     |> Enum.flat_map(& &1.check(nodes))

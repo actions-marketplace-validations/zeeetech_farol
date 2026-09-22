@@ -65,9 +65,12 @@ defmodule Farol.Rules.LabelAssociation do
   defp control?(%Node{tag: tag}), do: tag in ~w(select textarea)
 
   defp labeled?(node, for_targets, wrapped) do
+    # A dynamic id may well be targeted by a dynamic for elsewhere; the
+    # static engine cannot prove otherwise, so it stays silent.
     MapSet.member?(wrapped, node) or
       Node.has_attr?(node, "aria-label") or
       Node.has_attr?(node, "aria-labelledby") or
+      Node.dynamic?(node, "id") or
       (Node.attr(node, "id") != nil and Node.attr(node, "id") in for_targets)
   end
 
@@ -78,7 +81,8 @@ defmodule Farol.Rules.LabelAssociation do
       level: level(),
       severity: severity(),
       message: "#{Node.snippet(node)} has no associated label",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

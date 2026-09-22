@@ -14,12 +14,15 @@ defmodule Farol.Adapter.HTML do
   alias Farol.Node
 
   @impl true
-  def parse(html) when is_binary(html) do
-    html
-    |> parse_document()
-    |> LazyHTML.to_tree()
-    |> Enum.map(&Node.from_tree/1)
-    |> Enum.reject(&is_nil/1)
+  def parse(html, _opts \\ []) when is_binary(html) do
+    nodes =
+      html
+      |> parse_document()
+      |> LazyHTML.to_tree()
+      |> Enum.map(&Node.from_tree/1)
+      |> Enum.reject(&is_nil/1)
+
+    {:ok, nodes}
   end
 
   # Fragment parsing drops <html>/<head>/<body> (invalid in fragment

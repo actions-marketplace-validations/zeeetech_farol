@@ -51,7 +51,8 @@ defmodule Farol.Rules.ImgAlt do
       level: level(),
       severity: severity(),
       message: "#{Node.snippet(node)} has no alt text",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

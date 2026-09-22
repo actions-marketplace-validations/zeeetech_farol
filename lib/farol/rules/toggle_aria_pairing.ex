@@ -66,7 +66,8 @@ defmodule Farol.Rules.ToggleAriaPairing do
       message:
         "#{Node.snippet(node)} toggles content with JS commands but lacks " <>
           "#{Enum.join(missing, " and ")}",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

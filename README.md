@@ -39,7 +39,7 @@ a failing test at 5pm, not for a compliance auditor.
 ```elixir
 def deps do
   [
-    {:farol, "~> 0.1", only: :test}
+    {:farol, "~> 0.2", only: :test}
   ]
 end
 ```
@@ -74,6 +74,45 @@ assert_accessible html, only: [:img_alt, :label_association]
 Want the raw findings instead of an assertion? `Farol.check/2` returns
 them as data, and `Farol.Report.format/1` renders the same report the
 assertion prints.
+
+## static analysis: mix farol
+
+The second engine audits HEEx template *source* — no running app, no
+test to write. It walks the same parser LiveView compiles with, so
+`attr={@expr}` and `<%= if %>` blocks are understood, and every finding
+carries the file and line it came from:
+
+```
+$ mix farol
+4 accessibility finding(s): 3 error(s), 1 warning(s)
+
+x [img-alt] <img src="@user.avatar"> has no alt text
+  wcag 1.1.1 (level a) - error - lib/my_app_web/components/card.ex:2
+  ...
+```
+
+It audits `lib/**/*.heex` by default, takes paths or globs as arguments,
+and exits non-zero on error-severity findings or unparseable templates:
+
+```
+mix farol lib/my_app_web/live --except landmark-regions
+mix farol --format sarif --output farol.sarif
+```
+
+`--format sarif` emits SARIF 2.1.0 for GitHub code scanning. The `farol`
+GitHub Action wraps the whole flow: run the audit, upload the SARIF so
+findings annotate the pull request, and fail the workflow on errors:
+
+```yaml
+- uses: erlef/setup-beam@v1
+  with: {elixir-version: "1.18", otp-version: "27"}
+- run: mix deps.get
+- uses: zeetech/farol@v0.2
+```
+
+The static engine needs `phoenix_live_view` (that is where the HEEx
+parser lives). It is an optional dependency: if your app already renders
+LiveViews, there is nothing to add.
 
 ## the rule catalog
 
@@ -186,11 +225,12 @@ the findings.
 
 ## how it works inside
 
-Two engines, one rule catalog. The runtime engine (this release) parses
-rendered HTML into a normalized `Farol.Node` tree via `lazy_html` (the
-lexbor engine). The static engine (planned) will walk the HEEx tokenizer
-output at compile time. Both feed the same node struct into the same rule
-modules, so the catalog never forks.
+Two engines, one rule catalog. The runtime engine parses rendered HTML
+into a normalized `Farol.Node` tree via `lazy_html` (the lexbor engine).
+The static engine walks the HEEx parser output. Both feed the same node
+struct into the same rule modules, so the catalog never forks — a test
+suite property pins this: the same fixture through both adapters must
+produce identical findings.
 
 Deliberate non-goals: not a component library (farol grades components, it
 does not ship them), not a browser driver, not a screen reader simulator.
@@ -198,10 +238,10 @@ Structural checks only, which is exactly what fits in a test suite.
 
 ## roadmap
 
-- **0.1** (this): runtime engine, 18 rules, ExUnit assertions, terminal
-  report, zero-config default.
-- **0.2**: HEEx static analysis, `mix farol`, SARIF output for GitHub code
-  scanning, source locations.
+- **0.1**: runtime engine, 18 rules, ExUnit assertions, terminal report,
+  zero-config default.
+- **0.2** (this): HEEx static analysis, `mix farol`, SARIF output, GitHub
+  Action, source locations.
 - **0.3**: `farol_liveview` package with patch-cycle focus tracking and
   per-route audit mode.
 - **1.0**: rule api freeze, WCAG 2.2 AA coverage target.

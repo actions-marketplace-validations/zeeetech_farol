@@ -47,7 +47,8 @@ defmodule Farol.Rules.HtmlLang do
       level: level(),
       severity: severity(),
       message: "<html> has no lang attribute",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

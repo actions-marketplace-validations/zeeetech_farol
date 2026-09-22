@@ -78,7 +78,8 @@ defmodule Farol.Rules.LiveRegionUsage do
       severity: severity(),
       message:
         "#{Node.snippet(node)} looks like a flash container but lives outside any aria-live region",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

@@ -133,7 +133,8 @@ defmodule Farol.Rules.ContrastToken do
       message:
         "#{Node.snippet(node)}: #{fg} on #{bg} has contrast #{ratio}:1, " <>
           "below the required #{threshold}:1",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

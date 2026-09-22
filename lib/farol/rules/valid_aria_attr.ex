@@ -68,7 +68,8 @@ defmodule Farol.Rules.ValidAriaAttr do
       level: level(),
       severity: severity(),
       message: "#{Node.snippet(node)} has unknown aria attribute \"#{name}\"",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

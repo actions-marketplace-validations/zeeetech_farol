@@ -61,7 +61,8 @@ defmodule Farol.Rules.LinkName do
       level: level(),
       severity: severity(),
       message: "#{Node.snippet(node)} has no accessible name",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

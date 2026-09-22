@@ -48,7 +48,8 @@ defmodule Farol.Rules.DuplicateId do
       level: level(),
       severity: severity(),
       message: "id \"#{id}\" appears #{length(occurrences)} times in the document",
-      snippet: Node.snippet(hd(occurrences))
+      snippet: Node.snippet(hd(occurrences)),
+      line: hd(occurrences).line
     }
   end
 end

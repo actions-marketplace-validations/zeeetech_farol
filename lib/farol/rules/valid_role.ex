@@ -52,6 +52,9 @@ defmodule Farol.Rules.ValidRole do
   def check(nodes) do
     nodes
     |> Node.find(&Node.has_attr?(&1, "role"))
+    # A dynamic role (role={@role}) is unknowable statically; skip rather
+    # than flag the expression source as an unknown role.
+    |> Enum.reject(&Node.dynamic?(&1, "role"))
     |> Enum.flat_map(fn node ->
       node
       |> Node.attr("role")
@@ -68,7 +71,8 @@ defmodule Farol.Rules.ValidRole do
       level: level(),
       severity: severity(),
       message: "#{Node.snippet(node)} has unknown role \"#{role}\"",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

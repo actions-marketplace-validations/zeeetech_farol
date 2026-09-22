@@ -42,7 +42,8 @@ defmodule Farol.Report do
       "#{marker} [#{finding.rule}] #{finding.message}"
 
     meta =
-      "  wcag #{finding.wcag} (level #{finding.level}) - #{finding.severity}"
+      "  wcag #{finding.wcag} (level #{finding.level}) - #{finding.severity}" <>
+        location(finding)
 
     body =
       if rule do
@@ -61,6 +62,11 @@ defmodule Farol.Report do
 
   defp marker(:error), do: {"x", @purple}
   defp marker(:warning), do: {"!", @yellow}
+
+  # Static findings know where they came from; runtime ones do not.
+  defp location(%Finding{file: nil}), do: ""
+  defp location(%Finding{file: file, line: nil}), do: " - #{file}"
+  defp location(%Finding{file: file, line: line}), do: " - #{file}:#{line}"
 
   # Soft-wraps prose at 72 columns with a hanging indent, so the report
   # stays readable in narrow terminals.

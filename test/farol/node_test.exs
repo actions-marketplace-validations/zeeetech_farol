@@ -3,7 +3,7 @@ defmodule Farol.NodeTest do
 
   alias Farol.{Adapter.HTML, Node}
 
-  defp parse(html), do: HTML.parse(html)
+  defp parse(html), do: HTML.parse(html) |> elem(1)
 
   test "parses elements with attributes and text children" do
     [node] = parse(~s(<p class="intro">hello</p>))

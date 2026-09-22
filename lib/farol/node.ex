@@ -9,15 +9,23 @@ defmodule Farol.Node do
 
   The struct mirrors the classic `{tag, attributes, children}` HTML tree
   triple, with attributes as a map for cheap lookups.
+
+  Static sources (HEEx templates) also carry `line`/`column` of the opening
+  tag, and mark attributes written as Elixir expressions (`alt={@alt}`) in
+  `dynamic_attrs`: the attr map holds the expression source for those, and
+  rules treat them as "present but unknowable" rather than as literal text.
   """
 
   @type t :: %__MODULE__{
           tag: String.t(),
           attrs: %{String.t() => String.t()},
-          children: [t() | String.t()]
+          children: [t() | String.t()],
+          line: pos_integer() | nil,
+          column: pos_integer() | nil,
+          dynamic_attrs: [String.t()]
         }
 
-  defstruct [:tag, attrs: %{}, children: []]
+  defstruct [:tag, :line, :column, attrs: %{}, children: [], dynamic_attrs: []]
 
   @doc """
   Builds a node from a `LazyHTML.Tree` tuple, keeping text children as
@@ -71,6 +79,14 @@ defmodule Farol.Node do
   def attrs_with_prefix(%__MODULE__{attrs: attrs}, prefix) do
     for {name, value} <- attrs, String.starts_with?(name, prefix), do: {name, value}
   end
+
+  @doc """
+  True when the attribute was written as an Elixir expression in a template
+  (`role={@role}`). The value in `attrs` is the expression source; rules
+  that compare against a fixed vocabulary must skip dynamic values instead
+  of flagging them.
+  """
+  def dynamic?(%__MODULE__{dynamic_attrs: dynamic}, name), do: name in dynamic
 
   @doc """
   A short rendering of the opening tag, for finding messages.

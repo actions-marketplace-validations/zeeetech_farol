@@ -62,7 +62,8 @@ defmodule Farol.Rules.HeadingOrder do
       level: level(),
       severity: severity(),
       message: "<#{node.tag}> follows an h#{previous}: heading levels skip",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end

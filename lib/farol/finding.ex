@@ -14,9 +14,11 @@ defmodule Farol.Finding do
           level: String.t(),
           severity: :error | :warning,
           message: String.t(),
-          snippet: String.t() | nil
+          snippet: String.t() | nil,
+          file: String.t() | nil,
+          line: pos_integer() | nil
         }
 
   @enforce_keys [:rule, :wcag, :level, :severity, :message]
-  defstruct [:rule, :wcag, :level, :severity, :message, :snippet]
+  defstruct [:rule, :wcag, :level, :severity, :message, :snippet, :file, :line]
 end

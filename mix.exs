@@ -1,7 +1,7 @@
 defmodule Farol.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
   @source_url "https://github.com/zeetech/farol"
 
   def project do
@@ -26,6 +26,7 @@ defmodule Farol.MixProject do
   defp deps do
     [
       {:lazy_html, "~> 0.1"},
+      {:phoenix_live_view, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
     ]
   end

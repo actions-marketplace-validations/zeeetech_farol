@@ -72,7 +72,8 @@ defmodule Farol.Rules.NoAriaOnHidden do
       message:
         "#{Node.snippet(node)} is hidden but carries #{Enum.join(attrs, ", ")}: " <>
           "nothing will announce them",
-      snippet: Node.snippet(node)
+      snippet: Node.snippet(node),
+      line: node.line
     }
   end
 end
