@@ -1,8 +1,6 @@
-name: farol
+name: farol-phoenix-liveview
 description: >-
-  Static accessibility audit for HEEx templates. Runs mix farol, uploads
-  findings to GitHub code scanning as SARIF, and fails the workflow on
-  error-severity findings.
+  Static accessibility audit for HEEx templates. Runs mix farol, fails the workflow on error-severity findings.
 author: zeetech
 branding:
   icon: check-circle
@@ -19,7 +17,6 @@ inputs:
 runs:
   using: composite
   steps:
-    # Elixir/OTP must already be set up (erlef/setup-beam) and deps fetched.
     - name: Audit templates
       id: audit
       shell: bash
