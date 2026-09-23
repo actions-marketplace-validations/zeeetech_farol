@@ -39,7 +39,7 @@ a failing test at 5pm, not for a compliance auditor.
 ```elixir
 def deps do
   [
-    {:farol, "~> 0.2", only: :test}
+    {:farol, "~> 0.2", only: :test} # x-release-please-version
   ]
 end
 ```
@@ -222,29 +222,6 @@ Rules receive the parsed document as `Farol.Node` trees and return
 findings. They never raise and never do IO, which keeps them trivially
 testable: pass a string through `Farol.check/2` with `only:` and assert on
 the findings.
-
-## how it works inside
-
-Two engines, one rule catalog. The runtime engine parses rendered HTML
-into a normalized `Farol.Node` tree via `lazy_html` (the lexbor engine).
-The static engine walks the HEEx parser output. Both feed the same node
-struct into the same rule modules, so the catalog never forks — a test
-suite property pins this: the same fixture through both adapters must
-produce identical findings.
-
-Deliberate non-goals: not a component library (farol grades components, it
-does not ship them), not a browser driver, not a screen reader simulator.
-Structural checks only, which is exactly what fits in a test suite.
-
-## roadmap
-
-- **0.1**: runtime engine, 18 rules, ExUnit assertions, terminal report,
-  zero-config default.
-- **0.2** (this): HEEx static analysis, `mix farol`, SARIF output, GitHub
-  Action, source locations.
-- **0.3**: `farol_liveview` package with patch-cycle focus tracking and
-  per-route audit mode.
-- **1.0**: rule api freeze, WCAG 2.2 AA coverage target.
 
 ## license
 
