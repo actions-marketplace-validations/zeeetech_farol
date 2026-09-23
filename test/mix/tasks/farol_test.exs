@@ -82,7 +82,9 @@ defmodule Mix.Tasks.FarolTest do
     path = write_template("broken.heex", ~s(<div><span></div>))
 
     assert capture_io(:stderr, fn ->
-             assert_raise Mix.Error, fn -> Mix.Tasks.Farol.run([path]) end
+             capture_io(fn ->
+               assert_raise Mix.Error, fn -> Mix.Tasks.Farol.run([path]) end
+             end)
            end) =~ path
   end
 
